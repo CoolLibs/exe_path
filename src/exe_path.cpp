@@ -38,9 +38,9 @@ static std::filesystem::path executable_path_impl()
 #include <unistd.h>
 static std::filesystem::path executable_path_impl()
 {
-    char       raw_path_name[PATH_MAX];
-    char       real_path_name[PATH_MAX];
-    const auto raw_path_size = static_cast<uint32_t>(sizeof(raw_path_name));
+    char raw_path_name[PATH_MAX];
+    char real_path_name[PATH_MAX];
+    auto raw_path_size = static_cast<uint32_t>(sizeof(raw_path_name));
     if (!_NSGetExecutablePath(raw_path_name, &raw_path_size)) {
         realpath(raw_path_name, real_path_name);
     }
