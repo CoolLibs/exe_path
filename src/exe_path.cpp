@@ -32,10 +32,7 @@ static std::filesystem::path executable_path_impl()
 #endif
 
 #if defined(__APPLE__)
-#include <libgen.h>
-#include <limits.h>
 #include <mach-o/dyld.h>
-#include <unistd.h>
 static std::filesystem::path executable_path_impl()
 {
     char raw_path_name[PATH_MAX];
