@@ -13,9 +13,7 @@ static std::filesystem::path executable_path_impl()
 #endif
 
 #if defined(__linux__)
-#include <libgen.h>
 #include <limits.h>
-#include <unistd.h>
 #if defined(__sun)
 #define PROC_SELF_EXE "/proc/self/path/a.out"
 #else
