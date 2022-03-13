@@ -3,8 +3,6 @@
 // Thanks to https://stackoverflow.com/questions/1528298/get-path-of-executable/60250581#60250581
 
 #if defined(_WIN32)
-#include <Shlwapi.h>
-#include <io.h>
 #include <windows.h>
 static std::filesystem::path executable_path_impl()
 {
