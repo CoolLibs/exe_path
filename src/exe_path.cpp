@@ -43,15 +43,15 @@ static std::filesystem::path executable_path_impl()
 
 namespace exe_path {
 
-std::filesystem::path executable_path()
+std::filesystem::path exe()
 {
     static const auto path = executable_path_impl();
     return path;
 }
 
-std::filesystem::path executable_directory()
+std::filesystem::path dir()
 {
-    static const auto path = executable_path()
+    static const auto path = exe()
                                  .parent_path();
     return path;
 }

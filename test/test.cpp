@@ -3,7 +3,7 @@
 
 int main()
 {
-    std::cout << exe_path::executable_path() << '\n';
-    std::cout << exe_path::executable_directory() << '\n';
+    std::cout << exe_path::exe() << '\n';
+    std::cout << exe_path::dir() << '\n';
     std::cin.get();
 }

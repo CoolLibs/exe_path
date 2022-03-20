@@ -12,7 +12,7 @@ This is very useful to load assets that are located in the same directory as you
 int main()
 {
     const std::filesystem::path path_to_my_image 
-        = exe_path::executable_directory() / "assets/images/my_img.png";
+        = exe_path::dir() / "assets/images/my_img.png";
     // Then load the image...
 }
 ```
