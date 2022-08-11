@@ -9,7 +9,7 @@ on:
 
 
 env:
-  TARGET: exe_path-tests # Should be the name of the target you created in your CMakeLists.txt and want to build and run
+  TARGET: my_tests # Should be the name of the target you created in your CMakeLists.txt and want to build and run
 
 
 jobs:
