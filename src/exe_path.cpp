@@ -22,7 +22,7 @@ static std::filesystem::path executable_path_impl()
 static std::filesystem::path executable_path_impl()
 {
     char path[PATH_MAX];
-    realpath(PROC_SELF_EXE, path);
+    (void)realpath(PROC_SELF_EXE, path); // Cast to void to avoid warning of unused variable
     return path;
 }
 #endif
