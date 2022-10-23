@@ -21,8 +21,8 @@ static std::filesystem::path executable_path_impl()
 #endif
 static std::filesystem::path executable_path_impl()
 {
-    char path[PATH_MAX];
-    (void)realpath(PROC_SELF_EXE, path); // Cast to void to avoid warning of unused variable
+    char              buffer[PATH_MAX];
+    const char* const path = realpath(PROC_SELF_EXE, buffer);
     return path;
 }
 #endif
@@ -53,8 +53,7 @@ std::filesystem::path exe()
 
 std::filesystem::path dir()
 {
-    static const auto path = exe()
-                                 .parent_path();
+    static const auto path = exe().parent_path();
     return path;
 }
 
