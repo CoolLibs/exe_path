@@ -1,7 +1,7 @@
 ﻿---
 BasedOnStyle: Google
 AccessModifierOffset: '-4'
-AlignAfterOpenBracket: Align
+AlignAfterOpenBracket: BlockIndent
 AlignConsecutiveMacros: 'true'
 AlignConsecutiveAssignments: 'true'
 AlignConsecutiveDeclarations: 'true'
@@ -22,7 +22,7 @@ AlwaysBreakBeforeMultilineStrings: 'true'
 AlwaysBreakTemplateDeclarations: 'Yes'
 BinPackArguments: 'true'
 BinPackParameters: 'true'
-BreakBeforeBinaryOperators: All
+BreakBeforeBinaryOperators: NonAssignment
 BreakBeforeBraces: Custom
 BraceWrapping:
     AfterCaseLabel: true

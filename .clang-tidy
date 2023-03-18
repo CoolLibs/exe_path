@@ -1,18 +1,20 @@
 ---
 Checks: '
   *,
-  -modernize-use-nodiscard,
-  -performance-unnecessary-value-param, -modernize-pass-by-value,
-  -cppcoreguidelines-avoid-non-const-global-variables,
+  -misc-non-private-member-variables-in-classes,
+  -*braces-around-statements
+  -readability-implicit-bool-conversion
+  -readability-identifier-length,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -readability-magic-numbers,
   -readability-redundant-access-specifiers,
-  -readability-else-after-return,
-  -readability-implicit-bool-conversion,
   -readability-redundant-string-init,
   -cppcoreguidelines-pro-type-union-access,
   -cppcoreguidelines-pro-bounds-array-to-pointer-decay, -hicpp-no-array-decay,
   -hicpp-signed-bitwise,
-  -cppcoreguidelines-avoid-magic-numbers, -readability-magic-numbers,
   -hicpp-named-parameter, -readability-named-parameter,
+  -misc-no-recursion,
+  -performance-no-automatic-move,
   -cppcoreguidelines-pro-type-vararg, -hicpp-vararg,
   -google-runtime-references,
   -fuchsia-default-arguments-*,
