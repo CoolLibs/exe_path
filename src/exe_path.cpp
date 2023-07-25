@@ -37,12 +37,31 @@ static auto user_data_path_impl() -> std::filesystem::path
 #else
 #define PROC_SELF_EXE "/proc/self/exe"
 #endif
-static std::filesystem::path executable_path_impl()
+
+static auto executable_path_impl() -> std::filesystem::path
 {
     char              buffer[PATH_MAX];
     const char* const path = realpath(PROC_SELF_EXE, buffer);
     return path;
 }
+
+static auto user_data_path_impl() -> std::filesystem::path
+{
+    const char* xdgConfigPath = std::getenv("XDG_CONFIG_HOME");
+    if (xdgConfigPath != nullptr)
+    {
+        return xdgConfigPath;
+    }
+
+    const char* homePath = std::getenv("HOME");
+    if (homePath != nullptr)
+    {
+        return std::string(homePath) + "/.config";
+    }
+
+    return "";
+}
+
 #endif
 
 #if defined(__APPLE__)
