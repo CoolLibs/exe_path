@@ -4,13 +4,30 @@
 // Thanks to https://stackoverflow.com/questions/1528298/get-path-of-executable/60250581#60250581
 
 #if defined(_WIN32)
+#include <ShlObj.h>
 #include <windows.h>
+
 static std::filesystem::path executable_path_impl()
 {
     char path[MAX_PATH];
     GetModuleFileNameA(NULL, path, MAX_PATH);
     return path;
 }
+
+static auto user_data_path_impl() -> std::filesystem::path
+{
+    PWSTR   path   = nullptr;
+    HRESULT result = SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, nullptr, &path);
+
+    if (!SUCCEEDED(result))
+        return "";
+
+    auto const res = std::filesystem::path{path};
+    CoTaskMemFree(static_cast<void*>(path));
+
+    return res;
+}
+
 #endif
 
 #if defined(__linux__)
@@ -55,6 +72,12 @@ auto exe() -> std::filesystem::path const&
 auto dir() -> std::filesystem::path const&
 {
     static auto const path = exe().parent_path();
+    return path;
+}
+
+auto user_data() -> std::filesystem::path const&
+{
+    static auto const path = std::filesystem::weakly_canonical(user_data_path_impl());
     return path;
 }
 
