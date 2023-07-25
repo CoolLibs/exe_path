@@ -56,9 +56,11 @@ static auto user_data_path_impl() -> std::filesystem::path
 #endif
 
 #if defined(__APPLE__)
+#include <CoreFoundation/CoreFoundation.h>
 #include <mach-o/dyld.h>
 #include <sys/syslimits.h>
-static std::filesystem::path executable_path_impl()
+
+static auto executable_path_impl() -> std::filesystem::path
 {
     char raw_path_name[PATH_MAX];
     char real_path_name[PATH_MAX];
@@ -69,6 +71,30 @@ static std::filesystem::path executable_path_impl()
     }
     return real_path_name;
 }
+
+static auto user_data_path_impl() -> std::filesystem::path
+{
+    CFURLRef homeURL = CFCopyHomeDirectoryURL();
+    if (homeURL == nullptr)
+        return "";
+
+    auto path = std::filesystem::path{""};
+
+    CFStringRef homePath = CFURLCopyFileSystemPath(homeURL, kCFURLPOSIXPathStyle);
+    if (homePath != nullptr)
+    {
+        char pathBuffer[PATH_MAX];
+        if (CFStringGetCString(homePath, pathBuffer, sizeof(pathBuffer), kCFStringEncodingUTF8))
+        {
+            path = path_buffer;
+        }
+        CFRelease(homePath);
+    }
+    CFRelease(homeURL);
+
+    return path;
+}
+
 #endif
 
 namespace exe_path {
