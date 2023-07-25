@@ -74,23 +74,23 @@ static auto executable_path_impl() -> std::filesystem::path
 
 static auto user_data_path_impl() -> std::filesystem::path
 {
-    CFURLRef homeURL = CFCopyHomeDirectoryURL();
-    if (homeURL == nullptr)
+    CFURLRef home_url = CFCopyHomeDirectoryURL();
+    if (home_url == nullptr)
         return "";
 
     auto path = std::filesystem::path{""};
 
-    CFStringRef homePath = CFURLCopyFileSystemPath(homeURL, kCFURLPOSIXPathStyle);
-    if (homePath != nullptr)
+    CFStringRef home_path = CFURLCopyFileSystemPath(home_url, kCFURLPOSIXPathStyle);
+    if (home_path != nullptr)
     {
-        char pathBuffer[PATH_MAX];
-        if (CFStringGetCString(homePath, pathBuffer, sizeof(pathBuffer), kCFStringEncodingUTF8))
+        char path_buffer[PATH_MAX];
+        if (CFStringGetCString(home_path, path_buffer, sizeof(path_buffer), kCFStringEncodingUTF8))
         {
             path = path_buffer;
         }
-        CFRelease(homePath);
+        CFRelease(home_path);
     }
-    CFRelease(homeURL);
+    CFRelease(home_url);
 
     return path;
 }
