@@ -47,19 +47,10 @@ static auto executable_path_impl() -> std::filesystem::path
 
 static auto user_data_path_impl() -> std::filesystem::path
 {
-    const char* xdgConfigPath = std::getenv("XDG_CONFIG_HOME");
-    if (xdgConfigPath != nullptr)
-    {
-        return xdgConfigPath;
-    }
-
-    const char* homePath = std::getenv("HOME");
-    if (homePath != nullptr)
-    {
-        return std::string(homePath) + "/.config";
-    }
-
-    return "";
+    const char* path = std::getenv("HOME");
+    if (path == nullptr)
+        return "";
+    return path;
 }
 
 #endif
