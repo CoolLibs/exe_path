@@ -7,10 +7,10 @@
 #include <ShlObj.h>
 #include <windows.h>
 
-static std::filesystem::path executable_path_impl()
+static auto executable_path_impl() -> std::filesystem::path
 {
-    char path[MAX_PATH];
-    GetModuleFileNameA(NULL, path, MAX_PATH);
+    char path[MAX_PATH]; // NOLINT(*avoid-c-arrays)
+    GetModuleFileNameA(nullptr, path, MAX_PATH);
     return path;
 }
 
