@@ -1,4 +1,5 @@
 #include <exe_path/exe_path.h>
+#include <filesystem>
 
 // Thanks to https://stackoverflow.com/questions/1528298/get-path-of-executable/60250581#60250581
 
@@ -45,15 +46,15 @@ static std::filesystem::path executable_path_impl()
 
 namespace exe_path {
 
-std::filesystem::path exe()
+auto exe() -> std::filesystem::path const&
 {
-    static const auto path = executable_path_impl();
+    static auto const path = std::filesystem::weakly_canonical(executable_path_impl());
     return path;
 }
 
-std::filesystem::path dir()
+auto dir() -> std::filesystem::path const&
 {
-    static const auto path = exe().parent_path();
+    static auto const path = exe().parent_path();
     return path;
 }
 

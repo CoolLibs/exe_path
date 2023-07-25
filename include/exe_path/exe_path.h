@@ -5,8 +5,8 @@
 namespace exe_path {
 
 /// Returns the absolute path to your program's executable
-std::filesystem::path exe();
+auto exe() -> std::filesystem::path const&;
 /// Returns the absolute path to the directory containing your program's executable
-std::filesystem::path dir();
+auto dir() -> std::filesystem::path const&;
 
 } // namespace exe_path

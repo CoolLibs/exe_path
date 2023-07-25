@@ -1,9 +1,17 @@
 #include <exe_path/exe_path.h>
+#include <cassert>
 #include <iostream>
 
-int main()
+auto main() -> int
 {
-    std::cout << exe_path::exe() << '\n';
-    std::cout << exe_path::dir() << '\n';
-    std::cin.get();
+    {
+        std::filesystem::path const& path = exe_path::exe();
+        assert(!path.empty());
+        std::cout << "Exe     " << path << '\n';
+    }
+    {
+        std::filesystem::path const& path = exe_path::dir();
+        assert(!path.empty());
+        std::cout << "Exe dir " << path << '\n';
+    }
 }
