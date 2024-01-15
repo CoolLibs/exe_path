@@ -63,8 +63,9 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@main
+      # NOTE: this is necessary to correctly find and use cl.exe
+      - name: setup devcmd
+        uses: ilammy/msvc-dev-cmd@v1.3.0
 
       - name: Set up ccache
         uses: hendrikmuhs/ccache-action@main
