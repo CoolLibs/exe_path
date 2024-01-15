@@ -52,7 +52,7 @@ jobs:
           - {
               name: MacOS GCC,
               os: macos-latest,
-              cmake_configure_args: -D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++ -G Ninja,
+              cmake_configure_args: -D CMAKE_C_COMPILER=gcc-12 -D CMAKE_CXX_COMPILER=g++-12,
             }
         build_type:
           - Debug
