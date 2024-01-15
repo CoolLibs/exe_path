@@ -18,39 +18,35 @@ jobs:
       matrix:
         config:
           - {
-              name: "Windows MSVC",
-              os: "windows-latest",
-              compiler: "-D CMAKE_C_COMPILER=cl -D CMAKE_CXX_COMPILER=cl",
+              name: Windows MSVC,
+              os: windows-latest,
+              compiler: -D CMAKE_C_COMPILER=cl -D CMAKE_CXX_COMPILER=cl,
+            }
+          - { name: Windows Clang, os: windows-latest, compiler: -T ClangCL }
+          - {
+              name: Windows GCC,
+              os: windows-latest,
+              compiler: -D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++,
             }
           - {
-              name: "Windows Clang",
-              os: "windows-latest",
-              compiler: "-T ClangCL",
+              name: Linux Clang,
+              os: ubuntu-latest,
+              compiler: -D CMAKE_C_COMPILER=clang -D CMAKE_CXX_COMPILER=clang++,
             }
           - {
-              name: "Windows GCC",
-              os: "windows-latest",
-              compiler: "-D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++",
+              name: Linux GCC,
+              os: ubuntu-latest,
+              compiler: -D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++,
             }
           - {
-              name: "Linux Clang",
-              os: "ubuntu-latest",
-              compiler: "-D CMAKE_C_COMPILER=clang -D CMAKE_CXX_COMPILER=clang++",
-            }
-          - {
-              name: "Linux GCC",
-              os: "ubuntu-latest",
-              compiler: "-D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++",
-            }
-          - {
-              name: "MacOS Clang",
+              name: MacOS Clang,
               os: macos-latest,
-              compiler: "-D CMAKE_C_COMPILER=$(brew --prefix llvm@15)/bin/clang -D CMAKE_CXX_COMPILER=$(brew --prefix llvm@15)/bin/clang++",
+              compiler: -D CMAKE_C_COMPILER=$(brew --prefix llvm@15)/bin/clang -D CMAKE_CXX_COMPILER=$(brew --prefix llvm@15)/bin/clang++,
             }
           - {
-              name: "MacOS GCC",
+              name: MacOS GCC,
               os: macos-latest,
-              compiler: "-D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++",
+              compiler: -D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++,
             }
         build_type:
           - Debug
@@ -69,16 +65,17 @@ jobs:
       - name: Build
         uses: lukka/run-cmake@v3
         with:
-          cmakeListsOrSettingsJson: "CMakeListsTxtAdvanced"
-          cmakeListsTxtPath: "${{ github.workspace }}/tests/CMakeLists.txt"
+          cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
+          cmakeListsTxtPath: ${{ github.workspace }}/tests/CMakeLists.txt
           cmakeBuildType: ${{ matrix.build_type }}
-          buildDirectory: "${{ github.workspace }}/build"
-          cmakeAppendedArgs: " -D WARNINGS_AS_ERRORS_FOR_EXE_PATH=ON -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} ${{ matrix.config.compiler }} -D CMAKE_C_COMPILER_LAUNCHER=ccache -D CMAKE_CXX_COMPILER_LAUNCHER=ccache"
-          buildWithCMakeArgs: "--config ${{ matrix.build_type }} --target ${{env.TARGET}}"
+          buildDirectory: ${{ github.workspace }}/build
+          cmakeAppendedArgs: -D WARNINGS_AS_ERRORS_FOR_EXE_PATH=ON -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} ${{ matrix.config.compiler }} -D CMAKE_C_COMPILER_LAUNCHER=ccache -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
+          buildWithCMakeArgs: --config ${{ matrix.build_type }} --target ${{env.target}}
 
       - name: Run
-        if: runner.os == 'Windows'
-        run: ${{github.workspace}}\build\${{ matrix.build_type }}\${{env.TARGET}}.exe
-      - name: Run
-        if: runner.os != 'Windows'
-        run: ${{github.workspace}}/build/${{env.TARGET}}
+        run: |
+          if [ "${{ matrix.config.os }}" == "windows-latest" ]; then
+            ${{github.workspace}}\build\${{ matrix.build_type }}\${{env.target}}.exe
+          else
+            ${{github.workspace}}/build/${{env.target}}
+          fi
