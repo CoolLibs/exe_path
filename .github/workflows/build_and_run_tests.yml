@@ -57,11 +57,14 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Setup ccache dependencies
+        if: runner.os == 'Windows'
+        run: choco upgrade ccache ninja
+
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           key: ${{ matrix.config.name }}-${{ matrix.build_type }}
-          variant: sccache # Otherwise won't work on Windows
 
       - name: Build
         uses: lukka/run-cmake@v3
