@@ -47,4 +47,4 @@ jobs:
           cmakeBuildType: ${{ matrix.build_type }}
 
       - name: Run
-        run: ${{github.workspace}}/build/${{ matrix.build_type }}/exe_path-tests
+        run: ${{github.workspace}}/build/exe_path-tests
