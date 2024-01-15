@@ -8,39 +8,24 @@ on:
 
 jobs:
   build-and-run-tests:
-    name: ${{ matrix.config.name }}
+    name: ${{ matrix.config.name }} ${{ matrix.build_type }}
     runs-on: ${{ matrix.config.os }}
     strategy:
       fail-fast: false
       matrix:
+        build_type:
+          - Debug
+          - Release
         config:
+          - { name: "Windows MSVC", os: windows-latest, cc: "cl", cxx: "cl" }
+          - { name: "Windows MinGW", os: windows-latest, cc: "gcc", cxx: "g++" }
+          - { name: "Ubuntu GCC", os: ubuntu-latest, cc: "gcc", cxx: "g++" }
           - {
-              name: "Windows Latest MSVC",
-              os: windows-latest,
-              cc: "cl",
-              cxx: "cl",
-            }
-          - {
-              name: "Windows Latest MinGW",
-              os: windows-latest,
-              cc: "gcc",
-              cxx: "g++",
-            }
-          - {
-              name: "Ubuntu Latest GCC",
-              os: ubuntu-latest,
-              cc: "gcc",
-              cxx: "g++",
-            }
-          - {
-              name: "macOS Latest Clang",
+              name: "MacOS Clang",
               os: macos-latest,
               cc: "clang",
               cxx: "clang++",
             }
-        build_type:
-          - Debug
-          - Release
 
     steps:
       - uses: actions/checkout@v3
@@ -107,7 +92,7 @@ jobs:
 
           execute_process(
             COMMAND cmake
-              -S .
+              -S ./tests
               -B build
               -D CMAKE_BUILD_TYPE=${{ matrix.build_type }}
               -D CMAKE_C_COMPILER_LAUNCHER=ccache
