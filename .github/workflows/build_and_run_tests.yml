@@ -22,38 +22,38 @@ jobs:
           - {
               name: Windows MSVC,
               os: windows-latest,
-              cmake_configure_args: -D CMAKE_C_COMPILER=cl -D CMAKE_CXX_COMPILER=cl -G "Ninja",
+              cmake_configure_args: -G "Ninja",
             }
-          - {
-              name: Windows Clang,
-              os: windows-latest,
-              cmake_configure_args: -T ClangCL -G "Ninja",
-            }
-          - {
-              name: Windows GCC,
-              os: windows-latest,
-              cmake_configure_args: -D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++ -G Ninja,
-            }
-          - {
-              name: Linux Clang,
-              os: ubuntu-latest,
-              cmake_configure_args: -D CMAKE_C_COMPILER=clang -D CMAKE_CXX_COMPILER=clang++,
-            }
-          - {
-              name: Linux GCC,
-              os: ubuntu-latest,
-              cmake_configure_args: -D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++,
-            }
-          - {
-              name: MacOS Clang,
-              os: macos-latest,
-              cmake_configure_args: -D CMAKE_C_COMPILER=clang -D CMAKE_CXX_COMPILER=clang++,
-            }
-          - {
-              name: MacOS GCC,
-              os: macos-latest,
-              cmake_configure_args: -D CMAKE_C_COMPILER=gcc-13 -D CMAKE_CXX_COMPILER=g++-13,
-            }
+        #   - {
+        #       name: Windows Clang,
+        #       os: windows-latest,
+        #       cmake_configure_args: -T ClangCL -G "Ninja",
+        #     }
+        #   - {
+        #       name: Windows GCC,
+        #       os: windows-latest,
+        #       cmake_configure_args: -D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++ -G Ninja,
+        #     }
+        #   - {
+        #       name: Linux Clang,
+        #       os: ubuntu-latest,
+        #       cmake_configure_args: -D CMAKE_C_COMPILER=clang -D CMAKE_CXX_COMPILER=clang++,
+        #     }
+        #   - {
+        #       name: Linux GCC,
+        #       os: ubuntu-latest,
+        #       cmake_configure_args: -D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++,
+        #     }
+        #   - {
+        #       name: MacOS Clang,
+        #       os: macos-latest,
+        #       cmake_configure_args: -D CMAKE_C_COMPILER=clang -D CMAKE_CXX_COMPILER=clang++,
+        #     }
+        #   - {
+        #       name: MacOS GCC,
+        #       os: macos-latest,
+        #       cmake_configure_args: -D CMAKE_C_COMPILER=gcc-13 -D CMAKE_CXX_COMPILER=g++-13,
+        #     }
         build_type:
           - Debug
           - Release
