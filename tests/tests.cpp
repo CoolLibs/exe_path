@@ -4,34 +4,6 @@
 
 auto main() -> int
 {
-#ifdef _WIN32
-    std::cout << "Windows" << std::endl;
-#endif
-
-#ifdef __linux__
-    std::cout << "Linux" << std::endl;
-#endif
-
-#ifdef __APPLE__
-    std::cout << "macOS" << std::endl;
-#endif
-#ifdef _MSC_VER
-    std::cout << "MSVC" << std::endl;
-#endif
-
-#ifdef __GNUC__
-    std::cout << "GCC" << std::endl;
-#endif
-
-#ifdef __clang__
-    std::cout << "Clang" << std::endl;
-#endif
-#ifndef NDEBUG
-    std::cout << "Debug" << std::endl;
-#else
-    std::cout << "Release" << std::endl;
-#endif
-
     {
         std::filesystem::path const& path = exe_path::exe();
         assert(!path.empty());
