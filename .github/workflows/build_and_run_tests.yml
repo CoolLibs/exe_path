@@ -13,9 +13,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        build_type:
-          - Debug
-          - Release
         config:
           - { name: "Windows MSVC", os: windows-latest, cc: "cl", cxx: "cl" }
           - { name: "Windows MinGW", os: windows-latest, cc: "gcc", cxx: "g++" }
@@ -26,6 +23,9 @@ jobs:
               cc: "clang",
               cxx: "clang++",
             }
+        build_type:
+          - Debug
+          - Release
 
     steps:
       - uses: actions/checkout@v3
@@ -94,10 +94,15 @@ jobs:
             COMMAND cmake
               -S ./tests
               -B build
+              -D WARNINGS_AS_ERRORS_FOR_EXE_PATH=ON
               -D CMAKE_BUILD_TYPE=${{ matrix.build_type }}
               -D CMAKE_C_COMPILER_LAUNCHER=ccache
               -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
+            RESULT_VARIABLE result
           )
+          if (NOT result EQUAL 0)
+            message(FATAL_ERROR "Bad exit status")
+          endif()
 
       - name: Build
         shell: cmake -P {0}
@@ -116,8 +121,23 @@ jobs:
           execute_process(COMMAND ccache -z)
 
           execute_process(
-            COMMAND cmake --build build
+            COMMAND cmake
+              --build build
+              --config ${{ matrix.build_type }}
+              --target exe_path-tests
+            
+            RESULT_VARIABLE result
+            OUTPUT_VARIABLE output
+            ERROR_VARIABLE output
+            ECHO_OUTPUT_VARIABLE ECHO_ERROR_VARIABLE
           )
+
+          if (NOT result EQUAL 0)
+            string(REGEX MATCH "FAILED:.*$" error_message "${output}")
+            string(REPLACE "\n" "%0A" error_message "${error_message}")
+            message("::error::${error_message}")
+            message(FATAL_ERROR "Build failed")
+          endif()
 
       - name: ccache statistics
         shell: cmake -P {0}
