@@ -148,6 +148,9 @@ jobs:
 
           execute_process(COMMAND ccache -s)
 
+      - name: Run
+        run: build/${{ matrix.build_type }}/exe_path-tests
+
     #   - name: Run tests
     # shell: cmake -P {0}
     # run: |
