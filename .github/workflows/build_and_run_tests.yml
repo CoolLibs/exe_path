@@ -79,8 +79,4 @@ jobs:
           buildDirectory: ${{github.workspace}}/build
 
       - name: Run
-        if: runner.os == 'Windows' && matrix.config.name != 'Windows GCC'
-        run: ${{github.workspace}}/build/${{matrix.build_type}}/${{env.cmake_target}}
-      - name: Run
-        if: runner.os != 'Windows' || matrix.config.name == 'Windows GCC'
-        run: ${{github.workspace}}/build/${{env.cmake_target}}
+        run: ${{github.workspace}}/build/${{(runner.os == 'Windows' && matrix.config.name != 'Windows GCC') && matrix.build_type || ''}}/${{env.cmake_target}}
