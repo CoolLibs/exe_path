@@ -57,16 +57,12 @@ jobs:
         with:
           submodules: recursive
 
-      - uses: msys2/setup-msys2@v2
-        if: matrix.config.name == 'Windows GCC'
-        with:
-          update: true
-          install: >-
-            mingw-w64-x86_64-ninja
-
-      #   - name: Put MSYS2_MinGW64 on PATH
+      #   - uses: msys2/setup-msys2@v2
       #     if: matrix.config.name == 'Windows GCC'
-      #     run: echo "D:/a/_temp/msys64/mingw64/bin" >> $GITHUB_PATH
+      #     with:
+      #       update: true
+      #       install: >-
+      #         mingw-w64-x86_64-ninja
 
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
@@ -87,5 +83,5 @@ jobs:
         if: runner.os == 'Windows' && matrix.config.name != 'Windows GCC'
         run: ${{github.workspace}}\build\${{ matrix.build_type }}\${{env.target}}.exe
       - name: Run
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' || matrix.config.name == 'Windows GCC'
         run: ${{github.workspace}}/build/${{env.target}}
