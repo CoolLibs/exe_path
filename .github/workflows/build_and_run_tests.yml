@@ -22,12 +22,12 @@ jobs:
           - {
               name: Windows MSVC,
               os: windows-latest,
-              cmake_configure_args: -G "Ninja",
+              cmake_configure_args: -G Ninja,
             }
           - {
               name: Windows Clang,
               os: windows-latest,
-              cmake_configure_args: -DCMAKE_C_COMPILER=clang-cl -DCMAKE_CXX_COMPILER=clang-cl -G "Ninja",
+              cmake_configure_args: -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang -G Ninja,
             }
         #   - {
         #       name: Windows GCC,
