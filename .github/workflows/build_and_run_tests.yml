@@ -20,9 +20,13 @@ jobs:
           - {
               name: Windows MSVC,
               os: windows-latest,
-              compiler: -D CMAKE_C_COMPILER=cl -D CMAKE_CXX_COMPILER=cl,
+              compiler: -D CMAKE_C_COMPILER=cl -D CMAKE_CXX_COMPILER=cl -GNinja,
             }
-          - { name: Windows Clang, os: windows-latest, compiler: -T ClangCL }
+          - {
+              name: Windows Clang,
+              os: windows-latest,
+              compiler: -T ClangCL -GNinja,
+            }
           - {
               name: Windows GCC,
               os: windows-latest,
@@ -56,13 +60,6 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
-
-      #   - uses: msys2/setup-msys2@v2
-      #     if: matrix.config.name == 'Windows GCC'
-      #     with:
-      #       update: true
-      #       install: >-
-      #         mingw-w64-x86_64-ninja
 
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
