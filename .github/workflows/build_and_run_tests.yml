@@ -72,10 +72,9 @@ jobs:
           cmakeAppendedArgs: -D WARNINGS_AS_ERRORS_FOR_EXE_PATH=ON -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} ${{ matrix.config.compiler }} -D CMAKE_C_COMPILER_LAUNCHER=ccache -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
           buildWithCMakeArgs: --config ${{ matrix.build_type }} --target ${{env.target}}
 
-      - name: Run
-        run: |
-          if [ "${{ matrix.config.os }}" == "windows-latest" ]; then
-            ${{github.workspace}}\build\${{ matrix.build_type }}\${{env.target}}.exe
-          else
-            ${{github.workspace}}/build/${{env.target}}
-          fi
+      - name: Run on Windows
+        if: runner.os == 'Windows'
+        run: ${{github.workspace}}\build\${{ matrix.build_type }}\${{env.target}}.exe
+      - name: Run on Linux and Mac
+        if: runner.os != 'Windows'
+        run: ${{github.workspace}}/build/${{env.target}}
