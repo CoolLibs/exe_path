@@ -64,7 +64,7 @@ jobs:
           submodules: recursive
 
       - name: Setup ccache
-        uses: hendrikmuhs/ccache-action@v1.2
+        uses: hendrikmuhs/ccache-action@latest
         with:
           key: ${{matrix.config.name}}-${{matrix.build_type}}
 
@@ -80,7 +80,7 @@ jobs:
 
       - name: Run
         if: runner.os == 'Windows' && matrix.config.name != 'Windows GCC'
-        run: ${{github.workspace}}\build\${{matrix.build_type}}\${{env.cmake_target}}.exe
+        run: ${{github.workspace}}/build/${{matrix.build_type}}/${{env.cmake_target}}
       - name: Run
         if: runner.os != 'Windows' || matrix.config.name == 'Windows GCC'
         run: ${{github.workspace}}/build/${{env.cmake_target}}
