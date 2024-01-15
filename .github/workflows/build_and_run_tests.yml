@@ -52,6 +52,10 @@ jobs:
           - Debug
           - Release
 
+    defaults:
+      run:
+        shell: bash
+
     steps:
       - uses: actions/checkout@v3
         with:
@@ -59,7 +63,7 @@ jobs:
 
       - name: Setup ccache dependencies
         if: runner.os == 'Windows'
-        run: choco upgrade ccache ninja
+        run: choco upgrade ccache
 
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
