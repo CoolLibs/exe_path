@@ -17,36 +17,43 @@ jobs:
           - {
               name: "Windows MSVC",
               os: "windows-latest",
+              slash: "\\",
               compiler: "-D CMAKE_C_COMPILER=cl -D CMAKE_CXX_COMPILER=cl",
             }
           - {
               name: "Windows Clang",
               os: "windows-latest",
+              slash: "\\",
               compiler: "-T ClangCL",
             }
           - {
               name: "Windows GCC",
               os: "windows-latest",
+              slash: "\\",
               compiler: "-D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++",
             }
           - {
               name: "Linux Clang",
               os: "ubuntu-latest",
+              slash: "/",
               compiler: "-D CMAKE_C_COMPILER=clang -D CMAKE_CXX_COMPILER=clang++",
             }
           - {
               name: "Linux GCC",
               os: "ubuntu-latest",
+              slash: "/",
               compiler: "-D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++",
             }
           - {
               name: "MacOS Clang",
               os: macos-latest,
+              slash: "/",
               compiler: "-D CMAKE_C_COMPILER=$(brew --prefix llvm@15)/bin/clang -D CMAKE_CXX_COMPILER=$(brew --prefix llvm@15)/bin/clang++",
             }
           - {
               name: "MacOS GCC",
               os: macos-latest,
+              slash: "/",
               compiler: "-D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++",
             }
         build_type:
@@ -74,4 +81,4 @@ jobs:
           buildWithCMakeArgs: "--config ${{ matrix.build_type }} --target exe_path-tests"
 
       - name: Run
-        run: ${{github.workspace}}/build/exe_path-tests
+        run: ${{github.workspace}}${{ matrix.config.slash }}build${{ matrix.config.slash }}exe_path-tests
