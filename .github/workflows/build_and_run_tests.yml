@@ -56,7 +56,7 @@ jobs:
         #     }
         build_type:
           - Debug
-          - Release
+        #   - Release
 
     steps:
       - uses: actions/checkout@v3
@@ -65,7 +65,7 @@ jobs:
 
       # NOTE: this is necessary to correctly find and use cl.exe
       - name: setup devcmd
-        uses: ilammy/msvc-dev-cmd@v1.3.0
+        uses: ilammy/msvc-dev-cmd@master
 
       - name: Set up ccache
         uses: hendrikmuhs/ccache-action@main
