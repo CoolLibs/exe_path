@@ -22,7 +22,7 @@ jobs:
           - {
               name: Windows MSVC,
               os: windows-latest,
-              cmake_configure_args: -G Ninja,
+              cmake_configure_args: -G Ninja -D CMAKE_MSVC_DEBUG_INFORMATION_FORMAT=Embedded,
             }
           - {
               name: Windows Clang,
