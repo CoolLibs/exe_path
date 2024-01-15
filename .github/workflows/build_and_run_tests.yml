@@ -28,6 +28,9 @@ jobs:
           - Release
 
     steps:
+      # Installs latest CMake and Ninja.
+      - uses: lukka/get-cmake@latest
+
       - uses: actions/checkout@v3
         with:
           submodules: recursive
@@ -38,12 +41,11 @@ jobs:
           key: ${{ matrix.config.name }}-${{ matrix.build_type }}
 
       - name: build with cmake
-        uses: lukka/run-cmake@v3
+        uses: lukka/run-cmake@v10
         with:
           cmakeListsTxtPath: "${{ github.workspace }}/tests/CMakeLists.txt"
-          cmakeAppendedArgs: "-D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D WARNINGS_AS_ERRORS_FOR_EXE_PATH=ON -D CMAKE_C_COMPILER_LAUNCHER=ccache -D CMAKE_CXX_COMPILER_LAUNCHER=ccache"
-          buildWithCMake: true
-          buildDirectory: "${{ github.workspace }}/build"
+          configurePresetAdditionalArgs: "-D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D WARNINGS_AS_ERRORS_FOR_EXE_PATH=ON -D CMAKE_C_COMPILER_LAUNCHER=ccache -D CMAKE_CXX_COMPILER_LAUNCHER=ccache"
+          buildPresetAdditionalArgs: "['--config ${{ matrix.build_type }}']"
 
       - name: Run
         run: ${{github.workspace}}/build/exe_path-tests
