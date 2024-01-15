@@ -3,224 +3,165 @@ name: Build and run tests
 on:
   push:
     branches: [main]
-
   pull_request:
     branches: [main]
 
-env:
-  TARGET: exe_path-tests # Should be the name of the target you created in your CMakeLists.txt and want to build and run
-
 jobs:
-  #-----------------------------------------------------------------------------------------------
-  Windows_MSVC_Debug:
-    name: Windows MSVC Debug
-    runs-on: windows-2022
+  build-and-run-tests:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {
+              name: "Windows Latest MSVC",
+              os: windows-latest,
+              cc: "cl",
+              cxx: "cl",
+            }
+          - {
+              name: "Windows Latest MinGW",
+              os: windows-latest,
+              cc: "gcc",
+              cxx: "g++",
+            }
+          - {
+              name: "Ubuntu Latest GCC",
+              os: ubuntu-latest,
+              cc: "gcc",
+              cxx: "g++",
+            }
+          - {
+              name: "macOS Latest Clang",
+              os: macos-latest,
+              cc: "clang",
+              cxx: "clang++",
+            }
+        build_type:
+          - Debug
+          - Release
+
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
 
-      - name: Configure CMake
-        run: cmake .\tests -B ${{github.workspace}}\build -DWARNINGS_AS_ERRORS_FOR_EXE_PATH=ON -D CMAKE_C_COMPILER=cl -D CMAKE_CXX_COMPILER=cl
+      - name: Download ccache
+        id: ccache
+        shell: cmake -P {0}
+        run: |
+          if ("${{ runner.os }}" STREQUAL "Windows")
+            set(ccache_dir "ccache-$ENV{CCACHE_VERSION}-windows-x86_64")
+            set(ccache_archive "${ccache_dir}.zip")
+          elseif ("${{ runner.os }}" STREQUAL "Linux")
+            set(ccache_dir "ccache-$ENV{CCACHE_VERSION}-linux-x86_64")
+            set(ccache_archive "${ccache_dir}.tar.xz")
+          elseif ("${{ runner.os }}" STREQUAL "macOS")
+            set(ccache_dir "ccache-$ENV{CCACHE_VERSION}-darwin")
+            set(ccache_archive "${ccache_dir}.tar.gz")
+          endif()
 
-      - name: Build
-        run: cmake --build ${{github.workspace}}\build --config Debug --target ${{env.TARGET}}
+          set(ccache_url "https://github.com/ccache/ccache/releases/download/v$ENV{CCACHE_VERSION}/${ccache_archive}")
+          file(DOWNLOAD "${ccache_url}" ./${ccache_archive} SHOW_PROGRESS)
+          execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./${ccache_archive})
 
-      - name: Run
-        run: ${{github.workspace}}\build\Debug\${{env.TARGET}}
+          # Add to PATH environment variable
+          file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/${ccache_dir}" ccache_dir)
+          set(path_separator ":")
+          if ("${{ runner.os }}" STREQUAL "Windows")
+            set(path_separator ";")
+          endif()
+          file(APPEND "$ENV{GITHUB_PATH}" "$ENV{GITHUB_WORKSPACE}${path_separator}${ccache_dir}")
 
-  #-----------------------------------------------------------------------------------------------
-  Windows_MSVC_Release:
-    name: Windows MSVC Release
-    runs-on: windows-2022
-    steps:
-      - uses: actions/checkout@v3
+          if (NOT "${{ runner.os }}" STREQUAL "Windows")
+            execute_process(COMMAND chmod +x ${ccache_dir}/ccache)
+          endif()
+
+      - name: Prepare ccache timestamp
+        id: ccache_cache_timestamp
+        shell: cmake -P {0}
+        run: |
+          string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
+          file(APPEND "$ENV{GITHUB_OUTPUT}" "timestamp=${current_date}")
+
+      - name: ccache cache files
+        uses: actions/cache@v3
         with:
-          submodules: recursive
+          path: .ccache
+          key: ${{ matrix.config.name }}-ccache-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
+          restore-keys: |
+            ${{ matrix.config.name }}-ccache-
 
-      - name: Configure CMake
-        run: cmake .\tests -B ${{github.workspace}}\build -DWARNINGS_AS_ERRORS_FOR_EXE_PATH=ON -D CMAKE_C_COMPILER=cl -D CMAKE_CXX_COMPILER=cl
+      - name: Configure
+        shell: cmake -P {0}
+        run: |
+          set(ENV{CC} ${{ matrix.config.cc }})
+          set(ENV{CXX} ${{ matrix.config.cxx }})
 
-      - name: Build
-        run: cmake --build ${{github.workspace}}\build --config Release --target ${{env.TARGET}}
+          set(path_separator ":")
+          if ("${{ runner.os }}" STREQUAL "Windows")
+            set(path_separator ";")
+          endif()
+          set(ENV{PATH} "$ENV{GITHUB_WORKSPACE}${path_separator}$ENV{PATH}")
 
-      - name: Run
-        run: ${{github.workspace}}\build\Release\${{env.TARGET}}
-  #-----------------------------------------------------------------------------------------------
-  Windows_Clang_Debug:
-    name: Windows Clang Debug
-    runs-on: windows-2022
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      - name: Configure CMake
-        run: cmake .\tests -B ${{github.workspace}}\build -DWARNINGS_AS_ERRORS_FOR_EXE_PATH=ON -T ClangCL
-
-      - name: Build
-        run: cmake --build ${{github.workspace}}\build --config Debug --target ${{env.TARGET}}
-
-      - name: Run
-        run: ${{github.workspace}}\build\Debug\${{env.TARGET}}
-
-  #-----------------------------------------------------------------------------------------------
-  Windows_Clang_Release:
-    name: Windows Clang Release
-    runs-on: windows-2022
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      - name: Configure CMake
-        run: cmake .\tests -B ${{github.workspace}}\build -DWARNINGS_AS_ERRORS_FOR_EXE_PATH=ON -T ClangCL
+          execute_process(
+            COMMAND cmake
+              -S .
+              -B build
+              -D CMAKE_BUILD_TYPE=${{ matrix.build_type }}
+              -D CMAKE_C_COMPILER_LAUNCHER=ccache
+              -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
+          )
 
       - name: Build
-        run: cmake --build ${{github.workspace}}\build --config Release --target ${{env.TARGET}}
+        shell: cmake -P {0}
+        run: |
+          file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}" ccache_basedir)
+          set(ENV{CCACHE_BASEDIR} "${ccache_basedir}")
+          set(ENV{CCACHE_DIR} "${ccache_basedir}/.ccache")
+          set(ENV{CCACHE_COMPRESS} "true")
+          set(ENV{CCACHE_COMPRESSLEVEL} "6")
+          set(ENV{CCACHE_MAXSIZE} "400M")
+          if ("${{ matrix.config.cxx }}" STREQUAL "cl")
+            set(ENV{CCACHE_MAXSIZE} "600M")
+          endif()
 
-      - name: Run
-        run: ${{github.workspace}}\build\Release\${{env.TARGET}}
-  #-----------------------------------------------------------------------------------------------
-  Linux_GCC_Debug:
-    name: Linux GCC Debug
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
+          execute_process(COMMAND ccache -p)
+          execute_process(COMMAND ccache -z)
 
-      - name: Configure CMake
-        run: cmake ./tests -B ${{github.workspace}}/build -DWARNINGS_AS_ERRORS_FOR_EXE_PATH=ON -D CMAKE_BUILD_TYPE=Debug -D CMAKE_C_COMPILER=gcc-11 -D CMAKE_CXX_COMPILER=g++-11
+          execute_process(
+            COMMAND cmake --build build
+          )
 
-      - name: Build
-        run: cmake --build ${{github.workspace}}/build --config Debug --target ${{env.TARGET}}
+      - name: ccache statistics
+        shell: cmake -P {0}
+        run: |
+          file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}" ccache_basedir)
+          set(ENV{CCACHE_BASEDIR} "${ccache_basedir}")
+          set(ENV{CCACHE_DIR} "${ccache_basedir}/.ccache")
 
-      - name: Run
-        run: ${{github.workspace}}/build/${{env.TARGET}}
+          execute_process(COMMAND ccache -s)
 
-  #-----------------------------------------------------------------------------------------------
-  Linux_GCC_Release:
-    name: Linux GCC Release
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
+    #   - name: Run tests
+    # shell: cmake -P {0}
+    # run: |
+    #   include(ProcessorCount)
+    #   ProcessorCount(N)
 
-      - name: Configure CMake
-        run: cmake ./tests -B ${{github.workspace}}/build -DWARNINGS_AS_ERRORS_FOR_EXE_PATH=ON -D CMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=gcc-11 -D CMAKE_CXX_COMPILER=g++-11
+    #   set(ENV{CTEST_OUTPUT_ON_FAILURE} "ON")
 
-      - name: Build
-        run: cmake --build ${{github.workspace}}/build --config Release --target ${{env.TARGET}}
-
-      - name: Run
-        run: ${{github.workspace}}/build/${{env.TARGET}}
-
-  #-----------------------------------------------------------------------------------------------
-  Linux_Clang_Debug:
-    name: Linux Clang Debug
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      - name: Configure CMake
-        run: cmake ./tests -B ${{github.workspace}}/build -DWARNINGS_AS_ERRORS_FOR_EXE_PATH=ON -D CMAKE_BUILD_TYPE=Debug -D CMAKE_C_COMPILER=clang -D CMAKE_CXX_COMPILER=clang++
-
-      - name: Build
-        run: cmake --build ${{github.workspace}}/build --config Debug --target ${{env.TARGET}}
-
-      - name: Run
-        run: ${{github.workspace}}/build/${{env.TARGET}}
-
-  #-----------------------------------------------------------------------------------------------
-  Linux_Clang_Release:
-    name: Linux Clang Release
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      - name: Configure CMake
-        run: cmake ./tests -B ${{github.workspace}}/build -DWARNINGS_AS_ERRORS_FOR_EXE_PATH=ON -D CMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=clang -D CMAKE_CXX_COMPILER=clang++
-
-      - name: Build
-        run: cmake --build ${{github.workspace}}/build --config Release --target ${{env.TARGET}}
-
-      - name: Run
-        run: ${{github.workspace}}/build/${{env.TARGET}}
-
-  #-----------------------------------------------------------------------------------------------
-  MacOS_GCC_Debug:
-    name: MacOS GCC Debug
-    runs-on: macos-11
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      - name: Configure CMake
-        run: cmake ./tests -B ${{github.workspace}}/build -DWARNINGS_AS_ERRORS_FOR_EXE_PATH=ON -D CMAKE_BUILD_TYPE=Debug -D CMAKE_C_COMPILER=gcc-11 -D CMAKE_CXX_COMPILER=g++-11
-
-      - name: Build
-        run: cmake --build ${{github.workspace}}/build --config Debug --target ${{env.TARGET}}
-
-      - name: Run
-        run: ${{github.workspace}}/build/${{env.TARGET}}
-
-  #-----------------------------------------------------------------------------------------------
-  MacOS_GCC_Release:
-    name: MacOS GCC Release
-    runs-on: macos-11
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      - name: Configure CMake
-        run: cmake ./tests -B ${{github.workspace}}/build -DWARNINGS_AS_ERRORS_FOR_EXE_PATH=ON -D CMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=gcc-11 -D CMAKE_CXX_COMPILER=g++-11
-
-      - name: Build
-        run: cmake --build ${{github.workspace}}/build --config Release --target ${{env.TARGET}}
-
-      - name: Run
-        run: ${{github.workspace}}/build/${{env.TARGET}}
-
-  #-----------------------------------------------------------------------------------------------
-  MacOS_Clang_Debug:
-    name: MacOS Clang Debug
-    runs-on: macos-11
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      - name: Configure CMake
-        run: cmake ./tests -B ${{github.workspace}}/build -DWARNINGS_AS_ERRORS_FOR_EXE_PATH=ON -D CMAKE_BUILD_TYPE=Debug -D CMAKE_C_COMPILER=$(brew --prefix llvm@15)/bin/clang -D CMAKE_CXX_COMPILER=$(brew --prefix llvm@15)/bin/clang++
-
-      - name: Build
-        run: cmake --build ${{github.workspace}}/build --config Debug --target ${{env.TARGET}}
-
-      - name: Run
-        run: ${{github.workspace}}/build/${{env.TARGET}}
-
-  #-----------------------------------------------------------------------------------------------
-  MacOS_Clang_Release:
-    name: MacOS Clang Release
-    runs-on: macos-11
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      - name: Configure CMake
-        run: cmake ./tests -B ${{github.workspace}}/build -DWARNINGS_AS_ERRORS_FOR_EXE_PATH=ON -D CMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=$(brew --prefix llvm@15)/bin/clang -D CMAKE_CXX_COMPILER=$(brew --prefix llvm@15)/bin/clang++
-
-      - name: Build
-        run: cmake --build ${{github.workspace}}/build --config Release --target ${{env.TARGET}}
-
-      - name: Run
-        run: ${{github.workspace}}/build/${{env.TARGET}}
+    #   execute_process(
+    #     COMMAND ctest -j ${N}
+    #     WORKING_DIRECTORY build
+    #     RESULT_VARIABLE result
+    #     OUTPUT_VARIABLE output
+    #     ERROR_VARIABLE output
+    #     ECHO_OUTPUT_VARIABLE ECHO_ERROR_VARIABLE
+    #   )
+    #   if (NOT result EQUAL 0)
+    #     string(REGEX MATCH "[0-9]+% tests.*[0-9.]+ sec.*$" test_results "${output}")
+    #     string(REPLACE "\n" "%0A" test_results "${test_results}")
+    #     message("::error::${test_results}")
+    #     message(FATAL_ERROR "Running tests failed!")
+    #   endif()
