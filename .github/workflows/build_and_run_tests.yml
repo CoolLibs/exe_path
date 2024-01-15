@@ -22,12 +22,12 @@ jobs:
           - {
               name: Windows MSVC,
               os: windows-latest,
-              cmake_configure_args: -D CMAKE_MSVC_DEBUG_INFORMATION_FORMAT=Embedded,
+              cmake_configure_args: -D CMAKE_C_COMPILER=cl CMAKE_CXX_COMPILER=cl,
             }
           - {
               name: Windows Clang,
               os: windows-latest,
-              cmake_configure_args: -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang,
+              cmake_configure_args: -D CMAKE_C_COMPILER=clang -D CMAKE_CXX_COMPILER=clang,
             }
           - {
               name: Windows GCC,
@@ -63,11 +63,11 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Set up MSVC # NOTE: this is necessary to correctly find and use cl.exe and clang.exe
-        if: ${{runner.os == 'Windows'}} && ${{matrix.config.name}} != 'Windows GCC'
+      - name: Set up MSVC # NOTE: required to find cl.exe and clang.exe when using the Ninja generator. And we need to use Ninja in order for ccache to be able to cache stuff.
+        if: runner.os == 'Windows' && matrix.config.name != 'Windows GCC'
         uses: ilammy/msvc-dev-cmd@v1.13.0
 
-      - name: Set up ccache
+      - name: ccache
         uses: hendrikmuhs/ccache-action@main
         with:
           key: ${{matrix.config.name}}-${{matrix.build_type}}
