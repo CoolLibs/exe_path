@@ -22,38 +22,38 @@ jobs:
           - {
               name: Windows MSVC,
               os: windows-latest,
-              cmake_configure_args: -G Ninja -D CMAKE_MSVC_DEBUG_INFORMATION_FORMAT=Embedded,
+              cmake_configure_args: -D CMAKE_MSVC_DEBUG_INFORMATION_FORMAT=Embedded,
             }
           - {
               name: Windows Clang,
               os: windows-latest,
-              cmake_configure_args: -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang -G Ninja,
+              cmake_configure_args: -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang,
             }
-        #   - {
-        #       name: Windows GCC,
-        #       os: windows-latest,
-        #       cmake_configure_args: -D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++ -G Ninja,
-        #     }
-        #   - {
-        #       name: Linux Clang,
-        #       os: ubuntu-latest,
-        #       cmake_configure_args: -D CMAKE_C_COMPILER=clang -D CMAKE_CXX_COMPILER=clang++,
-        #     }
-        #   - {
-        #       name: Linux GCC,
-        #       os: ubuntu-latest,
-        #       cmake_configure_args: -D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++,
-        #     }
-        #   - {
-        #       name: MacOS Clang,
-        #       os: macos-latest,
-        #       cmake_configure_args: -D CMAKE_C_COMPILER=clang -D CMAKE_CXX_COMPILER=clang++,
-        #     }
-        #   - {
-        #       name: MacOS GCC,
-        #       os: macos-latest,
-        #       cmake_configure_args: -D CMAKE_C_COMPILER=gcc-13 -D CMAKE_CXX_COMPILER=g++-13,
-        #     }
+          - {
+              name: Windows GCC,
+              os: windows-latest,
+              cmake_configure_args: -D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++,
+            }
+          - {
+              name: Linux Clang,
+              os: ubuntu-latest,
+              cmake_configure_args: -D CMAKE_C_COMPILER=clang -D CMAKE_CXX_COMPILER=clang++,
+            }
+          - {
+              name: Linux GCC,
+              os: ubuntu-latest,
+              cmake_configure_args: -D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++,
+            }
+          - {
+              name: MacOS Clang,
+              os: macos-latest,
+              cmake_configure_args: -D CMAKE_C_COMPILER=clang -D CMAKE_CXX_COMPILER=clang++,
+            }
+          - {
+              name: MacOS GCC,
+              os: macos-latest,
+              cmake_configure_args: -D CMAKE_C_COMPILER=gcc-13 -D CMAKE_CXX_COMPILER=g++-13,
+            }
         build_type:
           - Debug
           - Release
@@ -63,8 +63,8 @@ jobs:
         with:
           submodules: recursive
 
-      # NOTE: this is necessary to correctly find and use cl.exe
-      - name: setup devcmd
+      - name: Set up MSVC # NOTE: this is necessary to correctly find and use cl.exe and clang.exe
+        if: ${{runner.os == 'Windows'}} && ${{matrix.config.name}} != 'Windows GCC'
         uses: ilammy/msvc-dev-cmd@v1.13.0
 
       - name: Set up ccache
@@ -77,7 +77,7 @@ jobs:
         with:
           cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
           cmakeListsTxtPath: ${{github.workspace}}/${{env.cmakelists_folder}}/CMakeLists.txt
-          cmakeAppendedArgs: ${{env.cmake_configure_args}} -D CMAKE_BUILD_TYPE=${{matrix.build_type}} ${{matrix.config.cmake_configure_args}} -D CMAKE_C_COMPILER_LAUNCHER=ccache -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
+          cmakeAppendedArgs: ${{env.cmake_configure_args}} -G Ninja -D CMAKE_BUILD_TYPE=${{matrix.build_type}} ${{matrix.config.cmake_configure_args}} -D CMAKE_C_COMPILER_LAUNCHER=ccache -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
           buildWithCMakeArgs: --config ${{matrix.build_type}} --target ${{env.cmake_target}}
           cmakeBuildType: ${{matrix.build_type}}
           buildDirectory: ${{github.workspace}}/build
