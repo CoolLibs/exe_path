@@ -7,12 +7,14 @@ on:
     branches: [main]
 
 env:
-  target: exe_path-tests # Should be the name of the target you created in your CMakeLists.txt and want to build and run
+  cmake_configure_args: -D WARNINGS_AS_ERRORS_FOR_EXE_PATH=ON
+  cmakelists_folder: tests
+  cmake_target: exe_path-tests
 
 jobs:
   build-and-run-tests:
-    name: ${{ matrix.config.name }} ${{ matrix.build_type }}
-    runs-on: ${{ matrix.config.os }}
+    name: ${{matrix.config.name}} ${{matrix.build_type}}
+    runs-on: ${{matrix.config.os}}
     strategy:
       fail-fast: false
       matrix:
@@ -20,33 +22,37 @@ jobs:
           - {
               name: Windows MSVC,
               os: windows-latest,
-              compiler: -D CMAKE_C_COMPILER=cl -D CMAKE_CXX_COMPILER=cl,
+              cmake_configure_args: -D CMAKE_C_COMPILER=cl -D CMAKE_CXX_COMPILER=cl,
             }
-          - { name: Windows Clang, os: windows-latest, compiler: -T ClangCL }
+          - {
+              name: Windows Clang,
+              os: windows-latest,
+              cmake_configure_args: -T ClangCL,
+            }
           - {
               name: Windows GCC,
               os: windows-latest,
-              compiler: -D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++ -GNinja,
+              cmake_configure_args: -D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++ -G Ninja,
             }
           - {
               name: Linux Clang,
               os: ubuntu-latest,
-              compiler: -D CMAKE_C_COMPILER=clang -D CMAKE_CXX_COMPILER=clang++,
+              cmake_configure_args: -D CMAKE_C_COMPILER=clang -D CMAKE_CXX_COMPILER=clang++,
             }
           - {
               name: Linux GCC,
               os: ubuntu-latest,
-              compiler: -D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++,
+              cmake_configure_args: -D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++,
             }
           - {
               name: MacOS Clang,
               os: macos-latest,
-              compiler: -D CMAKE_C_COMPILER=clang -D CMAKE_CXX_COMPILER=clang++,
+              cmake_configure_args: -D CMAKE_C_COMPILER=clang -D CMAKE_CXX_COMPILER=clang++,
             }
           - {
               name: MacOS GCC,
               os: macos-latest,
-              compiler: -D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++,
+              cmake_configure_args: -D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++,
             }
         build_type:
           - Debug
@@ -60,21 +66,21 @@ jobs:
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-          key: ${{ matrix.config.name }}-${{ matrix.build_type }}
+          key: ${{matrix.config.name}}-${{matrix.build_type}}
 
       - name: Build
         uses: lukka/run-cmake@v3
         with:
-          cmakeListsTxtPath: ${{ github.workspace }}/tests/CMakeLists.txt
-          cmakeAppendedArgs: -D WARNINGS_AS_ERRORS_FOR_EXE_PATH=ON -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} ${{ matrix.config.compiler }} -D CMAKE_C_COMPILER_LAUNCHER=ccache -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
-          buildWithCMakeArgs: --config ${{ matrix.build_type }} --target ${{env.target}}
           cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
-          cmakeBuildType: ${{ matrix.build_type }}
-          buildDirectory: ${{ github.workspace }}/build
+          cmakeListsTxtPath: ${{github.workspace}}/${{env.cmakelists_folder}}/CMakeLists.txt
+          cmakeAppendedArgs: ${{env.cmake_configure_args}} -D CMAKE_BUILD_TYPE=${{matrix.build_type}} ${{matrix.config.cmake_configure_args}} -D CMAKE_C_COMPILER_LAUNCHER=ccache -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
+          buildWithCMakeArgs: --config ${{matrix.build_type}} --target ${{env.cmake_target}}
+          cmakeBuildType: ${{matrix.build_type}}
+          buildDirectory: ${{github.workspace}}/build
 
       - name: Run
         if: runner.os == 'Windows' && matrix.config.name != 'Windows GCC'
-        run: ${{github.workspace}}\build\${{ matrix.build_type }}\${{env.target}}.exe
+        run: ${{github.workspace}}\build\${{matrix.build_type}}\${{env.cmake_target}}.exe
       - name: Run
         if: runner.os != 'Windows' || matrix.config.name == 'Windows GCC'
-        run: ${{github.workspace}}/build/${{env.target}}
+        run: ${{github.workspace}}/build/${{env.cmake_target}}
