@@ -42,6 +42,7 @@ jobs:
         with:
           cmakeListsTxtPath: "${{ github.workspace }}/tests/CMakeLists.txt"
           cmakeAppendedArgs: "-D WARNINGS_AS_ERRORS_FOR_EXE_PATH=ON -D CMAKE_C_COMPILER_LAUNCHER=ccache -D CMAKE_CXX_COMPILER_LAUNCHER=ccache"
+          buildWithCMakeArgs: "--config ${{ matrix.build_type }}"
           buildDirectory: "${{ github.workspace }}/build"
           cmakeBuildType: ${{ matrix.build_type }}
 
