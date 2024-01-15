@@ -14,14 +14,40 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { name: "Windows MSVC", os: windows-latest, cc: "cl", cxx: "cl" }
-          - { name: "Windows MinGW", os: windows-latest, cc: "gcc", cxx: "g++" }
-          - { name: "Ubuntu GCC", os: ubuntu-latest, cc: "gcc", cxx: "g++" }
+          - {
+              name: "Windows MSVC",
+              os: "windows-latest",
+              compiler: "-D CMAKE_C_COMPILER=cl -D CMAKE_CXX_COMPILER=cl",
+            }
+          - {
+              name: "Windows Clang",
+              os: "windows-latest",
+              compiler: "-T ClangCL",
+            }
+          - {
+              name: "Windows GCC",
+              os: "windows-latest",
+              compiler: "-D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++",
+            }
+          - {
+              name: "Linux Clang",
+              os: "ubuntu-latest",
+              compiler: "-D CMAKE_C_COMPILER=clang -D CMAKE_CXX_COMPILER=clang++",
+            }
+          - {
+              name: "Linux GCC",
+              os: "ubuntu-latest",
+              compiler: "-D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++",
+            }
           - {
               name: "MacOS Clang",
               os: macos-latest,
-              cc: "clang",
-              cxx: "clang++",
+              compiler: "-D CMAKE_C_COMPILER=$(brew --prefix llvm@15)/bin/clang -D CMAKE_CXX_COMPILER=$(brew --prefix llvm@15)/bin/clang++",
+            }
+          - {
+              name: "MacOS GCC",
+              os: macos-latest,
+              compiler: "-D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++",
             }
         build_type:
           - Debug
@@ -32,19 +58,19 @@ jobs:
         with:
           submodules: recursive
 
-      - name: ccache
+      - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           key: ${{ matrix.config.name }}-${{ matrix.build_type }}
 
-      - name: build with cmake
+      - name: Build
         uses: lukka/run-cmake@v3
         with:
           cmakeListsOrSettingsJson: "CMakeListsTxtAdvanced"
           cmakeListsTxtPath: "${{ github.workspace }}/tests/CMakeLists.txt"
           cmakeBuildType: ${{ matrix.build_type }}
           buildDirectory: "${{ github.workspace }}/build"
-          cmakeAppendedArgs: " -D WARNINGS_AS_ERRORS_FOR_EXE_PATH=ON -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D CMAKE_C_COMPILER=${{ matrix.config.cc }} -D CMAKE_CXX_COMPILER=${{ matrix.config.cxx }} -D CMAKE_C_COMPILER_LAUNCHER=ccache -D CMAKE_CXX_COMPILER_LAUNCHER=ccache"
+          cmakeAppendedArgs: " -D WARNINGS_AS_ERRORS_FOR_EXE_PATH=ON -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} ${{ matrix.config.compiler }} -D CMAKE_C_COMPILER_LAUNCHER=ccache -D CMAKE_CXX_COMPILER_LAUNCHER=ccache"
           buildWithCMakeArgs: "--config ${{ matrix.build_type }} --target exe_path-tests"
 
       - name: Run
