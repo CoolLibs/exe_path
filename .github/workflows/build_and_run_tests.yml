@@ -27,7 +27,7 @@ jobs:
           - {
               name: Windows Clang,
               os: windows-latest,
-              cmake_configure_args: -DCMAKE_C_COMPILER=clang-cl -DCMAKE_CXX_COMPILER=clang++-cl -G "Ninja",
+              cmake_configure_args: -DCMAKE_C_COMPILER=clang-cl -DCMAKE_CXX_COMPILER=clang-cl -G "Ninja",
             }
         #   - {
         #       name: Windows GCC,
@@ -83,4 +83,4 @@ jobs:
           buildDirectory: ${{github.workspace}}/build
 
       - name: Run
-        run: ${{github.workspace}}/build/${{(runner.os == 'Windows' && matrix.config.name != 'Windows GCC') && matrix.build_type || ''}}/${{env.cmake_target}}
+        run: ${{github.workspace}}/build/${{env.cmake_target}}
