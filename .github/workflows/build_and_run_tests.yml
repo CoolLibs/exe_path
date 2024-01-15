@@ -64,9 +64,9 @@ jobs:
           install: >-
             mingw-w64-x86_64-ninja
 
-      - name: Put MSYS2_MinGW64 on PATH
-        if: matrix.config.name == 'Windows GCC'
-        run: echo "D:/a/_temp/msys64/mingw64/bin" >> $GITHUB_PATH
+      #   - name: Put MSYS2_MinGW64 on PATH
+      #     if: matrix.config.name == 'Windows GCC'
+      #     run: echo "D:/a/_temp/msys64/mingw64/bin" >> $GITHUB_PATH
 
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
@@ -83,9 +83,9 @@ jobs:
           cmakeBuildType: ${{ matrix.build_type }}
           buildDirectory: ${{ github.workspace }}/build
 
-      - name: Run on Windows
-        if: runner.os == 'Windows'
+      - name: Run
+        if: runner.os == 'Windows' && matrix.config.name != 'Windows GCC'
         run: ${{github.workspace}}\build\${{ matrix.build_type }}\${{env.target}}.exe
-      - name: Run on Linux and Mac
+      - name: Run
         if: runner.os != 'Windows'
         run: ${{github.workspace}}/build/${{env.target}}
