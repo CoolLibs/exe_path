@@ -22,7 +22,7 @@ jobs:
           - {
               name: Windows MSVC,
               os: windows-latest,
-              cmake_configure_args: -G "Ninja",
+              cmake_configure_args: -D CMAKE_C_COMPILER=cl -D CMAKE_CXX_COMPILER=cl -G "Ninja",
             }
         #   - {
         #       name: Windows Clang,
@@ -62,6 +62,9 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
+
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.0.1
 
       - name: Set up ccache
         uses: hendrikmuhs/ccache-action@main
