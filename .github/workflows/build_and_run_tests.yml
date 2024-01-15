@@ -63,7 +63,7 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Set up MSVC # NOTE: required to find cl.exe and clang.exe when using the Ninja generator. And we need to use Ninja in order for ccache to be able to cache stuff.
+      - name: Set up MSVC # NOTE: required to find cl.exe and clang.exe when using the Ninja generator. And we need to use Ninja in order for ccache to be able to cache stuff on Windows.
         if: runner.os == 'Windows' && matrix.config.name != 'Windows GCC'
         uses: ilammy/msvc-dev-cmd@v1.13.0
 
