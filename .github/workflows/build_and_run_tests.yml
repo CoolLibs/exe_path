@@ -65,7 +65,7 @@ jobs:
 
       # NOTE: this is necessary to correctly find and use cl.exe
       - name: setup devcmd
-        uses: ilammy/msvc-dev-cmd@master
+        uses: ilammy/msvc-dev-cmd@v1.13.0
 
       - name: Set up ccache
         uses: hendrikmuhs/ccache-action@main
