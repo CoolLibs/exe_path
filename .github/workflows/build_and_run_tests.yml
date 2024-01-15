@@ -20,13 +20,9 @@ jobs:
           - {
               name: Windows MSVC,
               os: windows-latest,
-              compiler: -D CMAKE_C_COMPILER=cl -D CMAKE_CXX_COMPILER=cl -GNinja,
+              compiler: -D CMAKE_C_COMPILER=cl -D CMAKE_CXX_COMPILER=cl,
             }
-          - {
-              name: Windows Clang,
-              os: windows-latest,
-              compiler: -T ClangCL -GNinja,
-            }
+          - { name: Windows Clang, os: windows-latest, compiler: -T ClangCL }
           - {
               name: Windows GCC,
               os: windows-latest,
