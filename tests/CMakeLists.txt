@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.20)
 project(exe_path-tests)
 
 add_subdirectory(.. tests)
@@ -15,6 +15,7 @@ endif()
 
 # Maybe enable warnings as errors
 set(WARNINGS_AS_ERRORS_FOR_EXE_PATH OFF CACHE BOOL "ON iff you want to treat warnings as errors")
+
 if(WARNINGS_AS_ERRORS_FOR_EXE_PATH)
     if(MSVC)
         target_compile_options(${PROJECT_NAME} PRIVATE /WX)

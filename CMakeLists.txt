@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.20)
 
 set(WARNINGS_AS_ERRORS_FOR_EXE_PATH OFF CACHE BOOL "ON iff you want to treat warnings as errors")
 
@@ -12,6 +12,7 @@ if(WARNINGS_AS_ERRORS_FOR_EXE_PATH)
 else()
     target_include_directories(exe_path SYSTEM PUBLIC include)
 endif()
+
 target_sources(exe_path PRIVATE src/exe_path.cpp)
 
 # Set warning level
