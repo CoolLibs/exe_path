@@ -50,7 +50,7 @@ static auto user_data_path_impl() -> std::filesystem::path
     const char* path = std::getenv("HOME");
     if (path == nullptr)
         return "";
-    return std::filesystem::path(path) / ".local/share";
+    return std::filesystem::path{path} / ".local/share";
 }
 
 #endif
@@ -76,7 +76,7 @@ static auto user_data_path_impl() -> std::filesystem::path
     const char* path = std::getenv("HOME");
     if (path == nullptr)
         return "";
-    return path;
+    return std::filesystem::path{path} / "Library/Application Support";
 }
 
 #endif
